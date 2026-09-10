@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA PLAN</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ================= 1. SPLASH SCREEN ================= -->
+    <div id="splash-screen" class="splash-container">
+        <div class="splash-content">
+            <img src="bckapk.png" alt="EA PLAN Logo" class="splash-logo-img" onerror="this.style.display='none'">
+        </div>
+    </div>
+
+    <!-- ================= 2. WELCOME SCREEN ================= -->
+    <div id="welcome-screen" class="welcome-container" style="display: none;">
+        <div class="welcome-overlay">
+            <div class="welcome-center-content">
+                <div class="brand-group">
+                    <h1 class="brand-letter"></h1>
+                    <h2 class="brand-title"></h2>
+                </div>
+                <p class="brand-subtitle"></p>
+            </div>
+            <div class="welcome-bottom-content">
+                <button class="create-account-btn" onclick="goToLogin()">CREATE ACCOUNT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 3. LOGIN & SIGNUP SCREEN ================= -->
+    <div id="auth-screen" class="auth-container" style="display: none;">
+        <div class="auth-header-img">
+            <div class="logo-overlay">
+                <h1></h1>
+                <p></p>
+            </div>
+        </div>
+
+        <div class="auth-box">
+            <div class="auth-tabs">
+                <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button id="tab-signup" class="tab-btn" onclick="switchTab('signup')">Signup</button>
+            </div>
+
+            <!-- Form Login -->
+            <form id="form-login" class="auth-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>E-mail Address</label>
+                    <input type="email" id="login-email" placeholder="your.email@eaplan.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••••••" required>
+                </div>
+                <div class="forgot-pass">
+                    <a href="#" onclick="openForgotPassword(event)">Forgot password?</a>
+                </div>
+                <button type="submit" class="submit-btn">LOGIN</button>
+
+                <div class="social-divider"><span>Atau masuk dengan</span></div>
+                <div class="social-btn-group">
+                    <button type="button" class="social-btn google-btn" onclick="socialLogin('Google')">Google</button>
+                    <button type="button" class="social-btn facebook-btn" onclick="socialLogin('Facebook')">Facebook</button>
+                </div>
+            </form>
+
+            <!-- Form Signup -->
+            <form id="form-signup" class="auth-form" style="display: none;" onsubmit="handleSignup(event)">
+                <div class="input-group">
+                    <label>Full Name (Wajib huruf kapital di awal)</label>
+                    <input type="text" id="signup-name" placeholder="Contoh: Arkha Prakarsa" required>
+                </div>
+                <div class="input-group">
+                    <label>E-mail Address (Isi Email)</label>
+                    <input type="text" id="signup-email" placeholder="Contoh: arkhaprakarsa@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password (Kapital di awal, ada angka & simbol)</label>
+                    <input type="password" id="signup-password" placeholder="Contoh: Rahasia123#" required>
+                </div>
+                <p id="error-message" class="error-text" style="display: none;"></p>
+                <button type="submit" class="submit-btn">CREATE ACCOUNT</button>
+
+                <div class="social-divider"><span>Atau daftar dengan</span></div>
+                <div class="social-btn-group">
+                    <button type="button" class="social-btn google-btn" onclick="socialLogin('Google')">Google</button>
+                    <button type="button" class="social-btn facebook-btn" onclick="socialLogin('Facebook')">Facebook</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL FORGOT PASSWORD ================= -->
+    <div id="forgot-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <h3>Reset Password</h3>
+            <p>Masukkan email yang terdaftar untuk membuat password baru.</p>
+            
+            <div class="input-group" style="margin: 15px 0;">
+                <label>E-mail Terdaftar</label>
+                <input type="email" id="reset-email" placeholder="emailanda@domain.com">
+            </div>
+            
+            <div class="input-group" id="new-pass-group" style="margin: 15px 0; display: none;">
+                <label>Password Baru (Kapital awal, angka & simbol)</label>
+                <input type="password" id="reset-new-password" placeholder="Password Baru">
+            </div>
+
+            <p id="modal-error" class="error-text" style="display: none; margin-bottom: 10px;"></p>
+
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" onclick="closeForgotPassword()">Batal</button>
+                <button type="button" class="submit-btn" id="modal-action-btn" onclick="processForgotPassword()">Cek Email</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL EDIT PROFIL ================= -->
+    <div id="edit-profile-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-box" style="max-height: 85vh; overflow-y: auto;">
+            <h3>Edit Profil Kreator</h3>
+            <p>Ubah foto profil, nama, username, dan informasi Anda.</p>
+            
+            <div class="input-group" style="margin: 12px 0; text-align: center;">
+                <label style="margin-bottom: 6px;">Foto Profil</label>
+                <div class="edit-avatar-preview-box" style="margin: 0 auto 8px auto; width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid #b89768; background: #eee;">
+                    <img id="modal-avatar-preview" src="logo.jpg" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <input type="file" id="edit-avatar-file" accept="image/*" onchange="previewUploadedImage(event)" style="font-size: 11px;">
+            </div>
+
+            <div class="input-group" style="margin: 12px 0;">
+                <label>Nama Lengkap</label>
+                <input type="text" id="edit-name-input" placeholder="Nama Anda">
+            </div>
+            <div class="input-group" style="margin: 12px 0;">
+                <label>Username</label>
+                <input type="text" id="edit-username-input" placeholder="@username">
+            </div>
+            <div class="input-group" style="margin: 12px 0;">
+                <label>Lencana / Peran</label>
+                <input type="text" id="edit-badge-input" placeholder="Penulis">
+            </div>
+            <div class="input-group" style="margin: 12px 0;">
+                <label>Tentang / Bio Singkat</label>
+                <textarea id="edit-bio-input" rows="3" placeholder="Tulis bio Anda..." style="padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none;"></textarea>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" onclick="closeEditProfileModal()">Batal</button>
+                <button type="button" class="submit-btn" onclick="saveProfileChanges()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL TENTANG KAMI ================= -->
+    <div id="about-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-box about-box">
+            <div class="modal-header-row">
+                <h3>Tentang Kami</h3>
+                <button class="close-modal-x" onclick="closeAboutModal()">&times;</button>
+            </div>
+            <div class="about-scroll-content">
+                <p><strong>Setiap karya besar berawal dari satu langkah kecil yang terencana.</strong></p>
+                <p>EA PLAN hadir sebagai ruang bagi para kreator untuk merajut mimpi, merangkai cerita, dan merawat setiap perjalanan hidup. Ini bukan sekadar aplikasi pencatat jadwal, melainkan rumah bagi ide-ide liar, refleksi harian, dan peta jalan untuk mewujudkan masa depan.
+Inisiatif ini lahir dari kisah Aritox—seorang pemimpi yang mendambakan tempat privat untuk mendokumentasikan karya dan lika-liku kehidupannya. Dari kebutuhan personal itu, EA PLAN bertransformasi menjadi sebuah gerakan: wadah untuk merancang strategi, mengukur setiap target, dan mengubah usaha menjadi kenyataan yang hidup.
+Karena hidup ini terlalu berharga untuk dijalani tanpa arah.</p>
+                
+                <div class="about-connect-section">
+                    <h4>Mari Terhubung</h4>
+                    <div class="contact-list">
+                        <div class="contact-item"><span>✉️ <strong>Email:</strong> eaplann30@gmail.com</span></div>
+                        <div class="contact-item"><img src="logoInstagram.png" alt="Instagram" class="social-icon-img"><span>@eaplan_id</span></div>
+                        <div class="contact-item"><img src="logotiktok.png" alt="TikTok" class="social-icon-img"><span>@eaplan_id</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL PILIH / TAMBAH KARYA KE SERI ================= -->
+    <div id="add-work-to-series-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-box" style="max-width: 360px;">
+            <h3>Tambah Karya ke Seri</h3>
+            <p>Pilih karya yang sudah ada atau buat karya baru untuk dimasukkan ke seri ini.</p>
+            
+            <div class="auth-form" style="gap: 12px; margin-top: 10px;">
+                <div class="input-group">
+                    <label>Pilih Karya yang Sudah Ada</label>
+                    <select id="existing-work-select" class="dk-dropdown-select" style="border-bottom: 1px solid #ddd;">
+                        <option value="" disabled selected>-- Pilih Karya Tersedia --</option>
+                        <option value="Bab 1: Awal Mula">Bab 1: Awal Mula</option>
+                        <option value="Kisah Perjalanan">Kisah Perjalanan</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="cancel-btn" onclick="closeAddWorkModal()">Batal</button>
+                    <button type="button" class="submit-btn" onclick="linkExistingWork()">Masukkan</button>
+                </div>
+                <div class="social-divider"><span>atau</span></div>
+                <button type="button" class="submit-btn" style="background: #ff3366;" onclick="createNewWorkForSeries()">+ Buat Karya Baru</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL EDITOR JURNAL SAYA ================= -->
+    <div id="journal-editor-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-box journal-modal-box">
+            <div class="modal-header-row">
+                <h3 id="modal-editor-title-text">Buat Catatan / Jurnal Baru</h3>
+                <button class="close-modal-x" onclick="closeJournalEditor()">&times;</button>
+            </div>
+            <div class="auth-form" style="gap: 12px; margin-top: 10px;">
+                <input type="hidden" id="my-journal-edit-id" value="">
+                <div class="input-group">
+                    <label>Judul Catatan</label>
+                    <input type="text" id="my-journal-title" placeholder="Contoh: Ide Awal Karakter Utama">
+                </div>
+                <div class="input-group">
+                    <label>Kategori</label>
+                    <select id="my-journal-category" style="padding: 10px; border: none; border-bottom: 1px solid #ddd; background: transparent; font-size: 13px; outline: none;">
+                        <option value="Ide">Ide Cerita</option>
+                        <option value="Journey">Journey</option>
+                        <option value="Draft">Draft Bab</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Isi Catatan & Perencanaan</label>
+                    <textarea id="my-journal-text" rows="5" placeholder="Tuliskan gagasan, alur cerita, atau progres hari ini..." oninput="updateWordAndCharCount()" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; background: #faf8f5;"></textarea>
+                    <div class="word-counter-label" id="word-char-counter">0 Kata | 0 Karakter</div>
+                </div>
+                <div class="modal-buttons" style="margin-top: 10px;">
+                    <button type="button" class="cancel-btn" onclick="closeJournalEditor()">Batal</button>
+                    <button type="button" class="submit-btn" onclick="saveUserJournalEntry()">Simpan Jurnal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 4. HALAMAN UTAMA / DASHBOARD ================= -->
+    <div id="home-screen" class="home-container" style="display: none;">
+        <div class="home-overlay">
+            
+            <!-- Header Atas -->
+            <header class="home-header">
+                <div class="home-logo-area">
+                    <img src="eaplanlogo.png" alt="Logo" class="mini-logo" onerror="this.style.display='none'">
+                    <span class="home-brand-text">EA PLAN</span>
+                </div>
+                <div class="home-header-icons">
+                    <button class="home-icon-btn"><span class="material-icons">notifications_none</span></button>
+                    <button class="home-icon-btn" onclick="toggleProfileMenu()"><span class="material-icons">menu</span></button>
+                </div>
+            </header>
+
+            <!-- SIDEBAR MENU PILIHAN -->
+            <div id="profile-sidebar" class="profile-sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-brand">
+                        <img src="eaplanlogo.png" alt="Logo" class="sidebar-brand-logo" onerror="this.style.display='none'">
+                        <span class="home-brand-text">EA PLAN</span>
+                    </div>
+                    <button class="close-sidebar-btn" onclick="toggleProfileMenu()"><span class="material-icons">close</span></button>
+                </div>
+
+                <div class="sidebar-search">
+                    <span class="material-icons">search</span>
+                    <input type="text" placeholder="Cari Kreator / Karya">
+                </div>
+
+                <div class="sidebar-menu-list">
+                    <a href="#" onclick="openAboutModal()">Tentang Kami</a>
+                    <a href="#" onclick="alert('Membuka halaman Jelajahi')">Jelajahi</a>
+                    <a href="#" onclick="alert('Membuka halaman Koleksi')">Koleksi</a>
+                    <a href="#" onclick="alert('Membuka halaman Panduan Kreator')">Panduan Kreator</a>
+                    <a href="#" onclick="alert('Membuka halaman Newsroom')">Newsroom</a>
+                    <a href="#" onclick="alert('Membuka halaman FAQ')">FAQ</a>
+                </div>
+
+                <div class="sidebar-footer-actions">
+                    <button class="sidebar-btn primary-action" onclick="alert('Fitur Jadi Kreator')">Jadi Kreator</button>
+                    <button class="sidebar-btn outline-action" onclick="logoutAccount()">Keluar Akun</button>
+                </div>
+            </div>
+
+            <!-- KONTEN UTAMA -->
+            <main class="home-content">
+                <!-- Tampilan Beranda -->
+                <div id="tab-content-home" class="tab-pane active-pane">
+                    <div class="watermark-logo">
+                        <div class="user-greeting-box" style="margin-bottom: 15px;">
+                            <span class="greeting-name" style="font-size: 18px;">Hi, <span id="user-greeting">Pengguna</span></span>
+                            <span class="greeting-subtitle" style="font-size: 12px;">Your personalized planning journey</span>
+                        </div>
+                        <h1></h1>
+                        <h2></h2>
+                    </div>
+                </div>
+
+                <!-- Tampilan Roadmap -->
+                <div id="tab-content-roadmap" class="tab-pane" style="display: none;">
+                    <h3>Roadmap</h3>
+                    <p>Peta jalan perencanaan Anda akan tampil di sini.</p>
+                </div>
+
+                <!-- Tampilan Journal / Menu Pembuatan Karya -->
+                <div id="tab-content-journal" class="tab-pane journal-menu-pane" style="display: none;">
+                    <div class="creator-menu-card gold-border-card" onclick="openMyJournalSection()">
+                        <div class="menu-card-icon gold-bg"><span class="material-icons">book</span></div>
+                        <div class="menu-card-info">
+                            <div class="title-with-badge">
+                                <h4>Jurnal Saya</h4>
+                                <span class="mini-badge-label gold-badge">Utama</span>
+                            </div>
+                            <p>Catat ide, jadwal perencanaan, dan progress harian perjalanan menulismu di sini.</p>
+                        </div>
+                    </div>
+
+                    <div class="menu-divider-row">
+                        <span class="divider-line"></span>
+                        <span class="divider-text">atau</span>
+                        <span class="divider-line"></span>
+                    </div>
+
+                    <div class="creator-menu-list-wrap">
+                        <div class="creator-menu-card" onclick="openKategoriKaryaSection()">
+                            <div class="menu-card-icon pink-bg"><span class="material-icons">edit</span></div>
+                            <div class="menu-card-info">
+                                <h4>Kategori Karya</h4>
+                                <p>Kamu bisa buat karya satuan atau melanjutkan cerita dari kategori yang kamu punya.</p>
+                            </div>
+                        </div>
+
+                        <div class="creator-menu-card" onclick="openDetailSeriSection()">
+                            <div class="menu-card-icon blue-bg"><span class="material-icons">bookmark</span></div>
+                            <div class="menu-card-info">
+                                <h4>Seri Baru</h4>
+                                <p>Kamu bisa buat karya bersambung dengan series.</p>
+                            </div>
+                        </div>
+
+                        <div class="creator-menu-card" onclick="alert('Membuat Post Komunitas')">
+                            <div class="menu-card-icon purple-bg"><span class="material-icons">people</span></div>
+                            <div class="menu-card-info">
+                                <div class="title-with-badge">
+                                    <h4>Post Komunitas</h4>
+                                    <span class="mini-badge-label">Baru</span>
+                                </div>
+                                <p>Bagikan banyak hal untuk membuat pendukung lebih mengenal kreator melalui fitur komunitas!</p>
+                            </div>
+                        </div>
+
+                        <div class="creator-menu-card" onclick="alert('Membuka Dashboard Kreator')">
+                            <div class="menu-card-icon red-bg"><span class="material-icons">palette</span></div>
+                            <div class="menu-card-info">
+                                <h4>Dashboard Kreator</h4>
+                                <p>Kelola karya dan dukungan yang kamu terima sebagai kreator.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="creator-menu-footer">
+                        <a href="#" onclick="alert('Membuka Panduan Pelajari Lebih Lanjut')">Pelajari lebih lanjut</a>
+                    </div>
+                </div>
+
+                <!-- Tampilan Pilih Kategori Karya -->
+                <div id="tab-content-kategori-karya" class="tab-pane kategori-karya-pane" style="display: none;">
+                    <div class="kategori-top-nav">
+                        <button class="kategori-back-btn" onclick="backToJournalMenu()"><span class="material-icons">chevron_left</span></button>
+                        <h3>Kategori Karya</h3>
+                        <div style="width: 24px;"></div>
+                    </div>
+
+                    <div class="kategori-content-area">
+                        <p class="kategori-subtitle">Pilih Kategori Karya</p>
+
+                        <div class="kategori-cards-grid">
+                            <div class="kategori-card" onclick="openDetailKarya('Tulisan')">
+                                    <div class="kat-icon-wrap kat-tulisan-bg"><span class="material-icons"></span></div>
+                                <h4>Tulisan</h4>
+                                <p>Cerita bersambung, novel, puisi</p>
+                            </div>
+
+                            <div class="kategori-card" onclick="openDetailKarya('Komik/Galeri')">
+                                <div class="kat-icon-wrap kat-komik-bg"><span class="material-icons">view_module</span></div>
+                                <h4>Komik/Galeri</h4>
+                                <p>Komik strip, one-shot, series atau galeri</p>
+                            </div>
+
+                            <div class="kategori-card" onclick="openDetailKarya('Webtoon')">
+                                <div class="kat-icon-wrap kat-webtoon-bg"><span class="material-icons">swap_vert</span></div>
+                                <h4>Webtoon</h4>
+                                <p>Komik yang dibaca dari atas ke bawah</p>
+                            </div>
+
+                            <div class="kategori-card" onclick="openDetailKarya('Audio')">
+                                <div class="kat-icon-wrap kat-audio-bg"><span class="material-icons">speaker</span></div>
+                                <h4>Audio</h4>
+                                <p>Podcast, musik, audio story</p>
+                            </div>
+
+                            <div class="kategori-card" onclick="openDetailKarya('File Download')">
+                                <div class="kat-icon-wrap kat-file-bg"><span class="material-icons">cloud_download</span></div>
+                                <h4>File Download</h4>
+                                <p>Photo pack, tools, dan lainnya</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= HALAMAN DETAIL SERI (INPUT FORM) ================= -->
+                <div id="tab-content-detail-seri" class="tab-pane detail-seri-pane" style="display: none;">
+                    <div class="kategori-top-nav" style="background: #ffffff; padding: 12px 16px; position: sticky; top: 0; z-index: 10;">
+                        <button class="kategori-back-btn" onclick="backToJournalFromSeri()"><span class="material-icons">chevron_left</span></button>
+                        <h3>Detail Seri</h3>
+                        <button class="btn-simpan-seri" onclick="saveDetailSeri()">Simpan</button>
+                    </div>
+
+                    <div class="detail-karya-body">
+                        <div class="dk-upload-cover-box" onclick="document.getElementById('seri-cover-file-input').click()">
+                            <input type="file" id="seri-cover-file-input" accept="image/*" style="display: none;" onchange="previewSeriCoverImage(event)">
+                            <div id="seri-cover-preview-container" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                <span class="material-icons" style="font-size: 28px; color: #888; margin-bottom: 4px;">cloud_upload</span>
+                                <span class="dk-upload-title">Unggah Cover (direkomendasikan)</span>
+                                <span class="dk-upload-desc">Rekomendasi ukuran 600:900 (4:6) atau lebih.</span>
+                            </div>
+                        </div>
+
+                        <div class="dk-template-link">
+                            Desain dengan <a href="#" onclick="alert('Membuka Template Cover Karya')">Template Cover Karya</a>
+                        </div>
+
+                        <div class="dk-input-group red-border-input">
+                            <input type="text" id="seri-judul-input" placeholder="Judul (wajib)">
+                        </div>
+
+                        <div class="dk-editor-container">
+                            <div class="dk-editor-toolbar">
+                                <div class="dk-toolbar-left">
+                                    <select id="seri-format-select" class="dk-format-dropdown" onchange="applySeriTextFormat(this.value)">
+                                        <option value="p">Paragraph</option>
+                                        <option value="h1">Heading 1</option>
+                                        <option value="h2">Heading 2</option>
+                                        <option value="h3">Heading 3</option>
+                                    </select>
+                                    <button class="dk-tool-btn" onclick="applySeriInline('bold')"><b>B</b></button>
+                                    <button class="dk-tool-btn" onclick="applySeriInline('italic')"><i>I</i></button>
+                                    <button class="dk-tool-btn" onclick="alert('Fitur Strikethrough / List')"><span class="material-icons" style="font-size: 14px;">format_list_bulleted</span></button>
+                                    <button class="dk-tool-btn" onclick="alert('Fitur Kode / HTML')"><span class="material-icons" style="font-size: 14px;">code</span></button>
+                                    <button class="dk-tool-btn" onclick="insertSeriLink()"><span class="material-icons" style="font-size: 14px;">link</span></button>
+                                </div>
+                                <div class="dk-toolbar-right">
+                                    <button class="dk-tool-btn" onclick="alert('Fitur Tambah Gambar/Foto')"><span class="material-icons" style="font-size: 16px;">image</span></button>
+                                    <button class="dk-tool-btn" onclick="alert('Fitur Media URL / Video MP4')"><span class="material-icons" style="font-size: 16px;">smart_display</span></button>
+                                </div>
+                            </div>
+                            <textarea id="seri-sinopsis-textarea" rows="5" placeholder="Tulis 1-2 paragraf untuk Sinopsis dari series ini, buat pendukung penasaran."></textarea>
+                        </div>
+
+                        <div class="dk-select-wrapper" style="margin-top: 10px;">
+                            <select id="seri-genre-select" class="dk-dropdown-select">
+                                <option value="" disabled selected>Genre Seri (opsional)</option>
+                                <option value="Romansa">Romansa</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Komedi">Komedi</option>
+                                <option value="Horor">Horor</option>
+                                <option value="Fiksi">Fiksi</option>
+                                <option value="Remaja">Remaja</option>
+                                <option value="Fantasi">Fantasi</option>
+                                <option value="Edukasi">Edukasi</option>
+                                <option value="Religi">Religi</option>
+                                <option value="Petualangan">Petualangan</option>
+                                <option value="Cerita anak">Cerita anak</option>
+                                <option value="Non-fiksi">Non-fiksi</option>
+                                <option value="Fiksi Ilmiah">Fiksi Ilmiah</option>
+                            </select>
+                        </div>
+
+                        <div class="dk-select-wrapper" style="margin-top: 10px;">
+                            <select id="seri-status-select" class="dk-dropdown-select">
+                                <option value="Berlanjut">Berlanjut</option>
+                                <option value="Tamat">Tamat</option>
+                            </select>
+                        </div>
+
+                        <div class="dk-toggle-row" style="border-top: 1px solid #eee; padding-top: 14px; margin-top: 10px;">
+                            <div>
+                                <h5 style="font-size: 13px; font-weight: 700; color: #222;">Mengandung Konten Dewasa</h5>
+                                <p style="font-size: 11px; color: #777; margin-top: 2px;">Karya yang kamu buat tidak mengandung konten dewasa dan bisa dinikmati oleh semua.</p>
+                            </div>
+                            <label class="switch-toggle">
+                                <input type="checkbox">
+                                <span class="slider-round"></span>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ================= HALAMAN VIEW DETAIL SERI (SESUAI REFERENSI FOTO 1000051016.png) ================= -->
+                <div id="tab-content-view-detail-seri" class="tab-pane view-seri-pane" style="display: none;">
+                    <div class="kategori-top-nav" style="background: #ffffff; padding: 12px 16px; position: sticky; top: 0; z-index: 10;">
+                        <button class="kategori-back-btn" onclick="backToJournalFromSeriView()"><span class="material-icons">chevron_left</span></button>
+                        <h3>Detail Seri</h3>
+                        <button class="kategori-back-btn" onclick="alert('Menu opsi lainnya (Edit / Hapus Seri)')"><span class="material-icons">more_vert</span></button>
+                    </div>
+
+                    <div class="view-seri-body">
+                        <!-- Informasi Judul & Statistik Sesuai Foto -->
+                        <div class="view-seri-header-info">
+                            <h2 id="view-seri-title">Yah</h2>
+                            <div class="view-seri-stats-row">
+                                <div class="stat-item"><span class="material-icons">favorite_border</span> <span>0</span></div>
+                                <div class="stat-item"><span class="material-icons">chat_bubble_outline</span> <span>0</span></div>
+                                <div class="stat-item"><span class="material-icons">format_list_bulleted</span> <span>0</span></div>
+                            </div>
+                            <p id="view-seri-synopsis" class="view-seri-synopsis-text">Ya</p>
+                            <div class="view-seri-badge-box">
+                                <span id="view-seri-status-badge" class="berlanjut-badge">Berlanjut</span>
+                            </div>
+                        </div>
+
+                        <!-- Kotak Belum Punya Karya & Tombol Tambah Karya Sesuai Foto -->
+                        <div class="empty-seri-works-box" id="seri-works-container">
+                            <p>Kamu belum punya karya, yuk mulai karyamu dari sini.</p>
+                            <button class="btn-tambah-karya-seri" onclick="openAddWorkModal()">Tambah Karya</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tampilan Detail Karya (Universal) -->
+                <div id="tab-content-detail-karya" class="tab-pane detail-karya-pane" style="display: none;">
+                    <div class="kategori-top-nav" style="background: #ffffff; padding: 12px 16px; position: sticky; top: 0; z-index: 10;">
+                        <button class="kategori-back-btn" onclick="backToKategoriKarya()"><span class="material-icons">chevron_left</span></button>
+                        <h3>Detail Kategori Karya</h3>
+                        <button class="btn-lanjut-karya" onclick="openIsiKarya()">Lanjut</button>
+                    </div>
+
+                    <div class="detail-karya-body">
+                        <div class="dk-section-header">
+                            <h4>Informasi Karya</h4>
+                            <span class="material-icons" style="font-size: 18px; color: #666;">expand_less</span>
+                        </div>
+
+                        <div class="dk-select-wrapper">
+                            <select id="dk-category-select" class="dk-dropdown-select" onchange="changeCategorySelection(this.value)">
+                                <option value="Tulisan">Tulisan</option>
+                                <option value="Komik/Galeri">Komik/Galeri</option>
+                                <option value="Webtoon">Webtoon</option>
+                                <option value="Audio">Audio</option>
+                                <option value="File Download">File Download</option>
+                            </select>
+                        </div>
+
+                        <div class="dk-upload-cover-box" onclick="document.getElementById('cover-file-input').click()">
+                            <input type="file" id="cover-file-input" accept="image/*" style="display: none;" onchange="previewCoverImage(event)">
+                            <div id="cover-preview-container" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                <span class="material-icons" style="font-size: 28px; color: #888; margin-bottom: 4px;">cloud_upload</span>
+                                <span class="dk-upload-title">Unggah Cover (direkomendasikan)</span>
+                                <span class="dk-upload-desc">Rekomendasi ukuran 600:900 (4:6) atau lebih.</span>
+                            </div>
+                        </div>
+
+                        <div class="dk-template-link">
+                            Desain dengan <a href="#" onclick="alert('Membuka Template Cover Kategori Karya')">Template Cover Kategori Karya</a>
+                        </div>
+
+                        <div class="dk-input-group red-border-input">
+                            <input type="text" id="karya-judul-input" placeholder="Judul Kategori Karya (wajib)">
+                        </div>
+
+                        <div class="dk-editor-container">
+                            <div class="dk-editor-toolbar">
+                                <div class="dk-toolbar-left">
+                                    <select id="dk-format-select" class="dk-format-dropdown" onchange="applyTextFormat(this.value)">
+                                        <option value="p">Paragraph</option>
+                                        <option value="h1">Heading 1</option>
+                                        <option value="h2">Heading 2</option>
+                                        <option value="h3">Heading 3</option>
+                                    </select>
+                                    <button class="dk-tool-btn" onclick="applyInlineFormat('bold')"><b>B</b></button>
+                                    <button class="dk-tool-btn" onclick="applyInlineFormat('italic')"><i>I</i></button>
+                                    <button class="dk-tool-btn" onclick="applyInlineFormat('plain')">Plain</button>
+                                    <button class="dk-tool-btn" onclick="insertLinkPrompt()"><span class="material-icons" style="font-size: 14px;">link</span></button>
+                                </div>
+                                <div class="dk-toolbar-right">
+                                    <button class="dk-tool-btn" onclick="alert('Fitur Tambah Gambar/Foto')"><span class="material-icons" style="font-size: 16px;">image</span></button>
+                                    <button class="dk-tool-btn" onclick="alert('Fitur Media URL / Video MP4')"><span class="material-icons" style="font-size: 16px;">smart_display</span></button>
+                                    <button class="dk-tool-btn" onclick="alert('Fitur Tambah Berkas Lainnya (Audio MP3 / Stiker)')"><span class="material-icons" style="font-size: 16px;">attach_file</span></button>
+                                </div>
+                            </div>
+                            <textarea id="karya-deskripsi-input" rows="4" placeholder="Tulis deskripsi singkat untuk membuat pendukungmu penasaran."></textarea>
+                        </div>
+
+                        <div class="dk-cari-ide-banner">
+                            <div class="dk-cari-ide-text">
+                                <h5>Butuh Ide buat Deskripsi?</h5>
+                                <strong>Cari Ide Bareng Karina</strong>
+                                <p>Bikin kategori karya kamu makin laris dan menarik. Klik di sini untuk cobain fiturnya!</p>
+                            </div>
+                            <div class="dk-cari-ide-icon">
+                                <span class="material-icons" style="font-size: 32px; color: #00bcd4;">lightbulb</span>
+                            </div>
+                        </div>
+
+                        <div class="dk-select-wrapper" style="margin-top: 10px;">
+                            <select id="karya-genre-select" class="dk-dropdown-select">
+                                <option value="" disabled selected>Genre Kategori Karya</option>
+                                <option value="Romansa">Romansa</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Komedi">Komedi</option>
+                                <option value="Horor">Horor</option>
+                                <option value="Fiksi">Fiksi</option>
+                                <option value="Remaja">Remaja</option>
+                                <option value="Fantasi">Fantasi</option>
+                                <option value="Edukasi">Edukasi</option>
+                                <option value="Religi">Religi</option>
+                                <option value="Petualangan">Petualangan</option>
+                                <option value="Cerita anak">Cerita anak</option>
+                                <option value="Non-fiksi">Non-fiksi</option>
+                                <option value="Fiksi Ilmiah">Fiksi Ilmiah</option>
+                                <option value="Karya Seni">Karya Seni</option>
+                                <option value="Fotografi">Fotografi</option>
+                                <option value="Lainya">Lainya</option>
+                            </select>
+                        </div>
+                        <p class="dk-helper-text">Supaya dapat lebih mengenal kategori karyamu</p>
+
+                        <div class="dk-select-wrapper" style="margin-top: 10px;">
+                            <select id="karya-series-select" class="dk-dropdown-select">
+                                <option value="" disabled selected>Pilih Seri Kategori</option>
+                            </select>
+                        </div>
+                        <p class="dk-helper-text">Kelompokkan kategori karya ini dalam seri yang telah kamu buat.</p>
+
+                        <button class="dk-tambah-seri-btn" onclick="openDetailSeriSection()">Tambah Seri</button>
+
+                        <div class="dk-toggle-row">
+                            <span style="font-size: 13px; font-weight: 600; color: #222;">Aktifkan Komentar</span>
+                            <label class="switch-toggle">
+                                <input type="checkbox" checked>
+                                <span class="slider-round"></span>
+                            </label>
+                        </div>
+
+                        <div class="dk-input-group" style="margin-top: 10px;">
+                            <input type="text" id="karya-tags-input" placeholder="Tulis tag (contoh: romantis, fiksi, terbaru)..." style="width: 100%; padding: 12px; border: 1px solid #eae5db; border-radius: 8px; background: #ffffff; font-size: 13px; outline: none;">
+                        </div>
+                        <p class="dk-helper-text">untuk memudahkan pendukung menemukan ceritamu.</p>
+
+                        <div class="dk-toggle-row" style="border-top: 1px solid #eee; padding-top: 14px; margin-top: 10px;">
+                            <div>
+                                <h5 style="font-size: 13px; font-weight: 700; color: #222;">Mengandung Konten Dewasa</h5>
+                                <p style="font-size: 11px; color: #777; margin-top: 2px;">Kategori karya yang kamu buat tidak mengandung konten dewasa dan bisa dinikmati oleh semua umur.</p>
+                            </div>
+                            <label class="switch-toggle">
+                                <input type="checkbox">
+                                <span class="slider-round"></span>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ================= HALAMAN ISI KARYA ================= -->
+                <div id="tab-content-isi-karya" class="tab-pane isi-karya-pane" style="display: none;">
+                    <div class="isi-karya-top-nav">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button class="kategori-back-btn" onclick="backToDetailKarya()"><span class="material-icons">chevron_left</span></button>
+                            <h3>Isi Kategori Karya</h3>
+                        </div>
+                        <button class="btn-review-karya" onclick="openReviewKarya()">Review</button>
+                    </div>
+
+                    <div class="isi-karya-body">
+                        <div class="isi-karya-header-row">
+                            <h4 id="isi-karya-label-title">Kategori Tulisan</h4>
+                            <div class="status-tersimpan-badge">
+                                <span class="material-icons" style="font-size: 14px; color: #4CAF50;">bookmark</span>
+                                <span>Tersimpan</span>
+                            </div>
+                        </div>
+
+                        <div class="ik-editor-box">
+                            <div class="ik-editor-toolbar-top">
+                                <div class="ik-toolbar-left">
+                                    <select class="ik-format-select" id="ik-format-dropdown" onchange="applyIsiTextFormat(this.value)">
+                                        <option value="Paragraph">Paragraph</option>
+                                        <option value="Heading 1">Heading 1</option>
+                                        <option value="Heading 2">Heading 2</option>
+                                        <option value="Heading 3">Heading 3</option>
+                                    </select>
+                                    <button class="ik-tool-btn" onclick="applyIsiInline('bold')"><b>B</b></button>
+                                    <button class="ik-tool-btn" onclick="applyIsiInline('italic')"><i>I</i></button>
+                                    <button class="ik-tool-btn" onclick="alert('Fitur Strikethrough / List')"><span class="material-icons" style="font-size: 14px;">format_list_bulleted</span></button>
+                                    <button class="ik-tool-btn" onclick="alert('Fitur Kode / HTML')"><span class="material-icons" style="font-size: 14px;">code</span></button>
+                                    <button class="ik-tool-btn" onclick="insertIsiLink()"><span class="material-icons" style="font-size: 14px;">link</span></button>
+                                </div>
+                            </div>
+                            <div class="ik-editor-toolbar-sub">
+                                <button class="ik-tool-btn" onclick="alert('Tambah Gambar')"><span class="material-icons" style="font-size: 16px;">image</span></button>
+                                <button class="ik-tool-btn" onclick="alert('Tambah Video / Media')"><span class="material-icons" style="font-size: 16px;">smart_display</span></button>
+                                <span class="material-icons" style="font-size: 16px; color: #666; cursor: pointer;">expand_more</span>
+                            </div>
+                            <textarea id="isi-karya-textarea" rows="12" placeholder="Mulai ceritamu.."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= HALAMAN REVIEW KARYA ================= -->
+                <div id="tab-content-review-karya" class="tab-pane review-karya-pane" style="display: none;">
+                    <div class="kategori-top-nav" style="background: #ffffff; padding: 12px 16px; position: sticky; top: 0; z-index: 10;">
+                        <button class="kategori-back-btn" onclick="backToIsiKarya()"><span class="material-icons">chevron_left</span></button>
+                        <h3>Review Kategori Karya</h3>
+                        <button class="btn-lanjut-karya" onclick="publishKaryaFinal()">Terbitkan</button>
+                    </div>
+
+                    <div class="review-karya-body">
+                        <div class="review-recommendation-box">
+                            <div class="rec-icon"><span class="material-icons">recommend</span></div>
+                            <div class="rec-content">
+                                <h5>Rekomendasi Kategori Karya</h5>
+                                <p>Kategori karya Anda sudah tersusun rapi dan memenuhi standar visibilitas. Judul menarik dan isi sudah terisi dengan baik!</p>
+                            </div>
+                        </div>
+
+                        <div class="review-card-summary">
+                            <div class="review-cover-preview" id="review-cover-box">
+                                <span class="material-icons" style="font-size: 36px; color: #aaa;">image</span>
+                                <span style="font-size: 10px; color: #777;">Cover Kategori</span>
+                            </div>
+                            <div class="review-main-info">
+                                <span class="review-category-badge" id="rev-category-label">Tulisan</span>
+                                <h4 id="rev-title-display">Judul Belum Diisi</h4>
+                                <p id="rev-genre-display">Genre: Belum Dipilih</p>
+                                <p id="rev-series-display">Seri: -</p>
+                            </div>
+                        </div>
+
+                        <div class="review-section-block">
+                            <h5>Deskripsi Kategori Karya</h5>
+                            <p id="rev-desc-display" class="review-text-box">Belum ada deskripsi.</p>
+                        </div>
+
+                        <div class="review-section-block">
+                            <h5>Isi Cerita Utama</h5>
+                            <div id="rev-content-display" class="review-content-box">Belum ada isi cerita.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tampilan Ruang Kerja: Jurnal Saya -->
+                <div id="tab-content-my-journal" class="tab-pane my-journal-pane" style="display: none;">
+                    <div class="my-journal-header">
+                        <div class="journal-title-area">
+                            <h3>Jurnal & Catatan Saya</h3>
+                            <p>Ruang pribadi untuk merangkai ide, draf bab, dan perjalanan menulismu.</p>
+                        </div>
+                        <button class="btn-new-journal" onclick="openJournalEditor()">+ Tulis Baru</button>
+                    </div>
+
+                    <div class="journal-search-box">
+                        <span class="material-icons">search</span>
+                        <input type="text" id="journal-search-input" placeholder="Cari judul atau isi catatan..." oninput="handleJournalSearch()">
+                    </div>
+
+                    <div class="journal-filter-bar">
+                        <button class="filter-chip active" onclick="filterJournals('Semua', event)">Semua</button>
+                        <button class="filter-chip" onclick="filterJournals('Ide', event)">Ide Cerita</button>
+                        <button class="filter-chip" onclick="filterJournals('Journey', event)">Journey</button>
+                        <button class="filter-chip" onclick="filterJournals('Draft', event)">Draft Bab</button>
+                    </div>
+
+                    <div id="my-journal-cards-container" class="my-journal-cards-grid"></div>
+                </div>
+
+                <!-- Tampilan Stats -->
+                <div id="tab-content-stats" class="tab-pane" style="display: none;">
+                    <h3>Stats</h3>
+                    <p>Statistik dan pencapaian target Anda.</p>
+                </div>
+
+                <!-- Tampilan Menu Profile -->
+                <div id="tab-content-profile" class="tab-pane profile-pane-v3" style="display: none;">
+                    <div class="profile-main-card">
+                        <div class="profile-avatar-wrapper">
+                            <img id="main-profile-avatar-img" src="logo.jpg" alt="Avatar" class="profile-main-avatar" onerror="this.style.display='none'">
+                            <span class="material-icons profile-edit-icon" onclick="openEditProfileModal()">edit</span>
+                        </div>
+                        <h3 id="main-profile-name">DINAR KARSA</h3>
+                        <p id="main-profile-email">dinarkarsa@gmail.com</p>
+                        <button class="btn-lihat-profil" onclick="switchToCreatorProfile()">Lihat Profil</button>
+                    </div>
+
+                    <div class="profile-group-section">
+                        <span class="group-title-label">AKUN DAN PRIVASI</span>
+                        <a href="#" class="profile-menu-row"><span class="material-icons">settings</span> Pengaturan</a>
+                        <a href="#" class="profile-menu-row"><span class="material-icons">language</span> Pilihan Bahasa</a>
+                        <a href="#" class="profile-menu-row"><span class="material-icons">block</span> Akun Yang Diblokir</a>
+                    </div>
+
+                    <div class="profile-group-section">
+                        <span class="group-title-label">BANTUAN</span>
+                        <a href="#" class="profile-menu-row"><span class="material-icons">help_outline</span> Pusat Bantuan</a>
+                        <a href="#" class="profile-menu-row"><span class="material-icons">star_border</span> Suka EA PLAN? Nilai Kami!</a>
+                    </div>
+
+                    <div class="profile-fb-box" onclick="alert('Bergabung ke Grup Komunitas Facebook!')">
+                        <span class="material-icons">facebook</span>
+                        <span>Yuk, ngobrol sama pengguna lain di grup Facebook kita!</span>
+                    </div>
+
+                    <div class="profile-group-section" style="border-bottom: none; margin-bottom: 20px;">
+                        <a href="#" class="profile-menu-row logout-link" onclick="logoutAccount()">
+                            <span class="material-icons">logout</span> Keluar
+                        </a>
+                        <span class="app-version-label">Versi 3.90.2</span>
+                    </div>
+                </div>
+
+                <!-- Tampilan Halaman Detail Profil Kreator -->
+                <div id="tab-content-creator-view" class="tab-pane profile-creator-pane" style="display: none;">
+                    <div class="creator-nav-header">
+                        <span class="material-icons creator-back-btn" onclick="backToProfileMenu()">&larr;</span>
+                        <span class="creator-header-title" id="creator-header-name">DINAR KARSA</span>
+                        <span class="material-icons creator-more-btn" onclick="openEditProfileModal()" title="Edit Profil">edit</span>
+                    </div>
+
+                    <div class="creator-banner-area">
+                        <div class="creator-avatar-box">
+                            <img id="creator-avatar-img-view" src="logo.jpg" alt="Avatar" class="creator-avatar-img" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+
+                    <div class="creator-info-section">
+                        <h2 id="creator-profile-name">DINAR KARSA</h2>
+                        <p class="creator-username" id="creator-profile-username">@dinarkarsa_</p>
+                        <p class="creator-followers">● <strong id="stat-followers-count">3</strong> Pengikut</p>
+
+                        <div class="creator-action-buttons">
+                            <button class="creator-btn-outline" onclick="alert('Mengikuti Kreator')">IKUTI</button>
+                            <button class="creator-btn-outline" onclick="alert('Memberikan Tip')">KASIH TIP</button>
+                        </div>
+                    </div>
+
+                    <div class="creator-tabs-bar">
+                        <button class="creator-tab-item active" onclick="switchCreatorTab(event, 'seri')">Seri</button>
+                        <button class="creator-tab-item" onclick="switchCreatorTab(event, 'karya')">Kategori Karya</button>
+                        <button class="creator-tab-item" onclick="switchCreatorTab(event, 'komunitas')">Komunitas</button>
+                        <button class="creator-tab-item" onclick="switchCreatorTab(event, 'journey')">Journey</button>
+                        <button class="creator-tab-item" onclick="switchCreatorTab(event, 'info')">Info</button>
+                    </div>
+
+                    <div id="creator-tab-seri" class="creator-tab-content">
+                        <div class="creator-section-heading">
+                            <h4>Seri Terbaru</h4>
+                            <span id="creator-series-count-label">2 seri telah dibuat</span>
+                        </div>
+                        <div class="books-grid" id="creator-series-grid-container">
+                            <div class="book-card">
+                                <div class="book-cover-wrap book-bg-1"><span class="book-title-overlay">Kekasih Pertama & Terakhir</span></div>
+                                <p class="book-name">Kekasih Pertama...</p>
+                            </div>
+                            <div class="book-card">
+                                <div class="book-cover-wrap book-bg-2"><span class="book-title-overlay">ZONA NYAMAN</span></div>
+                                <p class="book-name">Zona Nyaman</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="creator-tab-karya" class="creator-tab-content" style="display: none;"><p class="empty-tab-text">Belum ada kategori karya.</p></div>
+                    <div id="creator-tab-komunitas" class="creator-tab-content" style="display: none;"><p class="empty-tab-text">Belum ada postingan komunitas.</p></div>
+                    <div id="creator-tab-journey" class="creator-tab-content" style="display: none;"><p class="empty-tab-text">Belum ada catatan journey.</p></div>
+                    
+                    <div id="creator-tab-info" class="creator-tab-content" style="display: none;">
+                        <div class="info-badge-row">
+                            <span class="penulis-badge">
+                                <span class="material-icons" style="font-size: 16px; color: #4CAF50;">edit_note</span> 
+                                <span id="creator-badge-display">Penulis</span>
+                            </span>
+                        </div>
+                        <div class="info-about-section">
+                            <h4>👋 Tentang <span id="creator-about-name">DINAR KARSA</span></h4>
+                            <p id="creator-bio-display">Selayaknya manusia, kita memiliki rasa perlu dan tidak perlu untuk hal tentang menanggapi</p>
+                        </div>
+                        <div class="info-stats-section">
+                            <h4>Statistik Dukungan</h4>
+                            <div class="info-stats-grid">
+                                <div class="info-stat-item"><strong id="stat-followers-val">3</strong><span>Pengikut</span></div>
+                                <div class="info-stat-item"><strong id="stat-support-val">0</strong><span>Dukungan</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- Bar Navigasi Bawah -->
+            <nav class="home-bottom-bar">
+                <a href="#" class="home-nav-item active" onclick="switchNav(event, 'home')"><span class="material-icons">home</span><span class="nav-label">Home</span></a>
+                <a href="#" class="home-nav-item" onclick="switchNav(event, 'roadmap')"><span class="material-icons">map</span><span class="nav-label">Roadmap</span></a>
+                <a href="#" class="home-nav-item" onclick="switchNav(event, 'journal')"><span class="material-icons">book</span><span class="nav-label">Journal</span></a>
+                <a href="#" class="home-nav-item" onclick="switchNav(event, 'stats')"><span class="material-icons">bar_chart</span><span class="nav-label">Stats</span></a>
+                <a href="#" class="home-nav-item" onclick="switchNav(event, 'profile')"><span class="material-icons">person</span><span class="nav-label">Profile</span></a>
+            </nav>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
